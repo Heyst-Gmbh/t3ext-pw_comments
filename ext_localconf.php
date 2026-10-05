@@ -46,6 +46,18 @@ if (!defined('TYPO3')) {
 
     ExtensionUtility::configurePlugin(
         $extensionKey,
+        'pagevote',
+        [
+            CommentController::class => 'indexPageVote,newPageVote',
+        ],
+        [
+            CommentController::class => 'indexPageVote,newPageVote',
+        ],
+        ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT,
+    );
+
+    ExtensionUtility::configurePlugin(
+        $extensionKey,
         'Pi2',
         [
             CommentController::class => 'sendAuthorMailWhenCommentHasBeenApproved',
@@ -97,6 +109,9 @@ if (!defined('TYPO3')) {
             'tx_pwcomments_new[authorWebsite]',
             'tx_pwcomments_new[newComment][message]',
             'tx_pwcomments_new[newComment][parentComment][__identity]',
+            'tx_pwcomments_pagevote',
+            'tx_pwcomments_pagevote[controller]',
+            'tx_pwcomments_pagevote[action]',
         ],
     );
 

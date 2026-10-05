@@ -39,6 +39,9 @@
 			<trans-unit id="tx_pwcomments_domain_model_comment.orig_pid" xml:space="preserve">
 				<source>Page uid of the commented page</source>
 			</trans-unit>
+			<trans-unit id="tx_pwcomments_domain_model_comment.lock" xml:space="preserve">
+				<source>Lock comment (message is replaced by a notice)</source>
+			</trans-unit>
 			<trans-unit id="tx_pwcomments_domain_model_comment.entry_uid" xml:space="preserve">
 				<source>Entry uid</source>
 			</trans-unit>
@@ -83,6 +86,12 @@
 			</trans-unit>
 			<trans-unit id="tx_pwcomments_domain_model_vote.type.1" xml:space="preserve">
 				<source>Upvote</source>
+			</trans-unit>
+			<trans-unit id="tx_pwcomments_domain_model_vote.type.2" xml:space="preserve">
+				<source>Page vote (like)</source>
+			</trans-unit>
+			<trans-unit id="tx_pwcomments_domain_model_vote.entry_uid" xml:space="preserve">
+				<source>Uid of the voted entry</source>
 			</trans-unit>
 			<trans-unit id="tx_pwcomments_domain_model_vote.author" xml:space="preserve">
 				<source>Author</source>

@@ -77,4 +77,46 @@ class VoteRepository extends Repository
         );
         return $query->execute()->getFirst();
     }
+
+    /**
+     * Find page votes ("likes") of given page and entry (0 = the page itself)
+     *
+     * @param int $pageUid uid of the voted page (orig_pid)
+     * @param int $entryUid
+     * @return QueryResultInterface found votes
+     */
+    public function findPageVotes($pageUid, $entryUid): QueryResultInterface
+    {
+        $query = $this->createQuery();
+        $query->matching(
+            $query->logicalAnd(
+                $query->equals('origPid', $pageUid),
+                $query->equals('entryUid', $entryUid),
+                $query->equals('type', Vote::TYPE_PAGEVOTE),
+            ),
+        );
+        $query->setOrderings(['crdate' => 'ASC']);
+        return $query->execute();
+    }
+
+    /**
+     * Find page vote of given author for given page and entry
+     *
+     * @param int $pageUid uid of the voted page (orig_pid)
+     * @param int $entryUid
+     * @param string $authorIdent
+     */
+    public function findOnePageVoteByAuthorIdent($pageUid, $entryUid, $authorIdent): ?Vote
+    {
+        $query = $this->createQuery();
+        $query->matching(
+            $query->logicalAnd(
+                $query->equals('origPid', $pageUid),
+                $query->equals('entryUid', $entryUid),
+                $query->equals('authorIdent', $authorIdent),
+                $query->equals('type', Vote::TYPE_PAGEVOTE),
+            ),
+        );
+        return $query->execute()->getFirst();
+    }
 }

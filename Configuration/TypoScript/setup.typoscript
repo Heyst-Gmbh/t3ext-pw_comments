@@ -52,6 +52,7 @@ plugin.tx_pwcomments {
         enableVoting = {$plugin.tx_pwcomments.settings.enableVoting}
         hideVoteButtons = {$plugin.tx_pwcomments.settings.hideVoteButtons}
         ignoreVotingForOwnComments = {$plugin.tx_pwcomments.settings.ignoreVotingForOwnComments}
+        enablePageVoting = {$plugin.tx_pwcomments.settings.enablePageVoting}
 
         senderAddress = {$plugin.tx_pwcomments.settings.senderAddress}
         senderName = {$plugin.tx_pwcomments.settings.senderName}
@@ -80,6 +81,7 @@ plugin.tx_pwcomments {
         requireAcceptedTerms = {$plugin.tx_pwcomments.settings.requireAcceptedTerms}
         termsTypolinkParameter = {$plugin.tx_pwcomments.settings.termsTypolinkParameter}
         enableRating = {$plugin.tx_pwcomments.settings.enableRating}
+        filterCommentsByLanguage = {$plugin.tx_pwcomments.settings.filterCommentsByLanguage}
 
         moderateNewComments = {$plugin.tx_pwcomments.settings.moderateNewComments}
         enableAiModeration = {$plugin.tx_pwcomments.settings.enableAiModeration}
@@ -150,6 +152,19 @@ lib {
                 1 = new
                 2 = create
                 3 = confirmComment
+            }
+        }
+    }
+
+    # Lib for page vote ("like") button of current page or entry
+    pwCommentsPageVote < .pwCommentsIndex
+    pwCommentsPageVote {
+        pluginName = pagevote
+
+        controllerActions {
+            Comment {
+                1 = indexPageVote
+                2 = newPageVote
             }
         }
     }

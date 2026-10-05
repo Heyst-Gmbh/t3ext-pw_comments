@@ -171,6 +171,9 @@
       <trans-unit id="tx_pwcomments.votes.downvote" xml:space="preserve" approved="yes">
 				<source>Downvote</source>
 			<target state="final">Schlecht</target></trans-unit>
+      <trans-unit id="tx_pwcomments.pageVote.toggle" xml:space="preserve" approved="yes">
+				<source>Like</source>
+			<target state="final">Gefällt mir</target></trans-unit>
       <trans-unit id="tx_pwcomments.votes.selfVotingError" xml:space="preserve" approved="yes">
 				<source>You may not vote your own comments</source>
 			<target state="final">Der eigene Kommentar darf nicht bewertet werden</target></trans-unit>

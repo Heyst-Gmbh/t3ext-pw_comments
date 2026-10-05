@@ -39,6 +39,9 @@
       <trans-unit id="tx_pwcomments_domain_model_comment.orig_pid" xml:space="preserve" approved="yes">
 				<source>Page uid of the commented page</source>
 			<target state="final">UID der kommentierten Seite</target></trans-unit>
+      <trans-unit id="tx_pwcomments_domain_model_comment.lock" xml:space="preserve" approved="yes">
+				<source>Lock comment (message is replaced by a notice)</source>
+			<target state="final">Kommentar sperren (Text wird durch einen Hinweis ersetzt)</target></trans-unit>
       <trans-unit id="tx_pwcomments_domain_model_comment.entry_uid" xml:space="preserve" approved="yes">
 				<source>Entry uid</source>
 			<target state="final">Eintrag UID</target></trans-unit>
@@ -84,6 +87,12 @@
       <trans-unit id="tx_pwcomments_domain_model_vote.type.1" xml:space="preserve" approved="yes">
 				<source>Upvote</source>
 			<target state="final">Gute Bewertung</target></trans-unit>
+      <trans-unit id="tx_pwcomments_domain_model_vote.type.2" xml:space="preserve" approved="yes">
+				<source>Page vote (like)</source>
+			<target state="final">Seiten-Like</target></trans-unit>
+      <trans-unit id="tx_pwcomments_domain_model_vote.entry_uid" xml:space="preserve" approved="yes">
+				<source>Uid of the voted entry</source>
+			<target state="final">UID des bewerteten Eintrags</target></trans-unit>
       <trans-unit id="tx_pwcomments_domain_model_vote.author" xml:space="preserve" approved="yes">
 				<source>Author</source>
 			<target state="final">Autor</target></trans-unit>

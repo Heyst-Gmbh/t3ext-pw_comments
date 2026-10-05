@@ -1,0 +1,12 @@
+<f:layout name="Default" />
+
+<f:section name="main">
+	<div class="pagevote">
+		<span class="pagevote-count">{votes -> f:count()}</span>
+		<f:if condition="{settings.enablePageVoting}">
+			<f:link.action action="newPageVote" addQueryString="untrusted" class="pagevote-toggle{f:if(condition: voted, then: ' voted')}">
+				<f:translate key="tx_pwcomments.pageVote.toggle" />
+			</f:link.action>
+		</f:if>
+	</div>
+</f:section>

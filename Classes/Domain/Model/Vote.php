@@ -22,11 +22,18 @@ class Vote extends AbstractEntity
     final public const TYPE_UPVOTE = 1;
     /** Constant for downvote */
     final public const TYPE_DOWNVOTE = 0;
+    /** Constant for a vote on the page/entry itself ("like"), not related to a comment */
+    final public const TYPE_PAGEVOTE = 2;
 
     /**
      * @var int uid of the page for what the comment is for
      */
     protected $origPid = 0;
+
+    /**
+     * @var int uid of entry for what the page vote is for
+     */
+    protected $entryUid = 0;
 
     /**
      * @var int
@@ -71,6 +78,26 @@ class Vote extends AbstractEntity
     public function setOrigPid($origPid): void
     {
         $this->origPid = $origPid;
+    }
+
+    /**
+     * Getter for entryUid
+     *
+     * @return int
+     */
+    public function getEntryUid()
+    {
+        return $this->entryUid;
+    }
+
+    /**
+     * Setter for entryUid
+     *
+     * @param int $entryUid
+     */
+    public function setEntryUid($entryUid): void
+    {
+        $this->entryUid = $entryUid;
     }
 
     /**
@@ -169,6 +196,16 @@ class Vote extends AbstractEntity
     public function isDownvote()
     {
         return $this->getType() === self::TYPE_DOWNVOTE;
+    }
+
+    /**
+     * Is page vote?
+     *
+     * @return bool
+     */
+    public function isPageVote()
+    {
+        return $this->getType() === self::TYPE_PAGEVOTE;
     }
 
     /**

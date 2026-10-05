@@ -29,10 +29,11 @@ return [
         'typeicon_classes' => [
             '0' => 'ext-pwcomments-type-vote_down',
             '1' => 'ext-pwcomments-type-vote_up',
+            '2' => 'ext-pwcomments-type-vote_up',
         ],
     ],
     'types' => [
-        '1' => ['showitem' => 'type,crdate,author,author_ident'],
+        '1' => ['showitem' => 'type,crdate,author,author_ident,entry_uid'],
     ],
     'palettes' => [
         '1' => ['showitem' => ''],
@@ -52,6 +53,14 @@ return [
                 'type' => 'input',
             ],
         ],
+        'entry_uid' => [
+            'exclude' => 0,
+            'label' => $ll . 'tx_pwcomments_domain_model_vote.entry_uid',
+            'config' => [
+                'type' => 'input',
+                'readOnly' => true,
+            ],
+        ],
         'crdate' => [
             'exclude' => 0,
             'label' => $ll . 'general.crdate',
@@ -69,6 +78,7 @@ return [
                 'items' => [
                     ['label' => $ll . 'tx_pwcomments_domain_model_vote.type.0', 'value' => 0],
                     ['label' => $ll . 'tx_pwcomments_domain_model_vote.type.1', 'value' => 1],
+                    ['label' => $ll . 'tx_pwcomments_domain_model_vote.type.2', 'value' => 2],
                 ],
                 'readOnly' => true,
             ],

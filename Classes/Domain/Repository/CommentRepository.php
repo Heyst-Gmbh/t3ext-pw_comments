@@ -46,22 +46,26 @@ class CommentRepository extends Repository
      * Find comments by pid
      *
      * @param int $pid pid to get comments for
+     * @param int|null $languageUid if given, only comments written in this language are returned
      * @return object|QueryResult<Comment> found comments
      */
-    public function findByPid($pid)
+    public function findByPid($pid, ?int $languageUid = null)
     {
         $query = $this->createQuery();
-        $query->matching(
-            $query->logicalAnd(
-                $query->equals('pid', $pid),
-                $query->equals('parentComment', 0),
-            ),
-        );
+        $constraints = [
+            $query->equals('pid', $pid),
+            $query->equals('parentComment', 0),
+        ];
+        if ($languageUid !== null) {
+            $query->getQuerySettings()->setRespectSysLanguage(false);
+            $constraints[] = $query->equals('sys_language_uid', $languageUid);
+        }
+        $query->matching($query->logicalAnd(...$constraints));
         $query->setOrderings(['crdate' => $this->getCommentSortingDirection()]);
         $comments = $query->execute();
 
         foreach ($comments as $comment) {
-            $this->findAndAttachCommentReplies($comment);
+            $this->findAndAttachCommentReplies($comment, $languageUid);
         }
 
         return $comments;
@@ -72,23 +76,27 @@ class CommentRepository extends Repository
      *
      * @param int $pid pid to get comments for
      * @param int $entryUid entry id to get comments for
+     * @param int|null $languageUid if given, only comments written in this language are returned
      * @return object|QueryResult<Comment> found comments
      */
-    public function findByPidAndEntryUid($pid, $entryUid)
+    public function findByPidAndEntryUid($pid, $entryUid, ?int $languageUid = null)
     {
         $query = $this->createQuery();
-        $query->matching(
-            $query->logicalAnd(
-                $query->equals('pid', $pid),
-                $query->equals('entryUid', $entryUid),
-                $query->equals('parentComment', 0),
-            ),
-        );
+        $constraints = [
+            $query->equals('pid', $pid),
+            $query->equals('entryUid', $entryUid),
+            $query->equals('parentComment', 0),
+        ];
+        if ($languageUid !== null) {
+            $query->getQuerySettings()->setRespectSysLanguage(false);
+            $constraints[] = $query->equals('sys_language_uid', $languageUid);
+        }
+        $query->matching($query->logicalAnd(...$constraints));
         $query->setOrderings(['crdate' => $this->getCommentSortingDirection()]);
         $comments = $query->execute();
 
         foreach ($comments as $comment) {
-            $this->findAndAttachCommentReplies($comment);
+            $this->findAndAttachCommentReplies($comment, $languageUid);
         }
 
         return $comments;
@@ -116,12 +124,22 @@ class CommentRepository extends Repository
     /**
      * Find replies by given comment and attaches them to replies attribute.
      */
-    protected function findAndAttachCommentReplies(Comment $comment)
+    protected function findAndAttachCommentReplies(Comment $comment, ?int $languageUid = null)
     {
         $query = $this->createQuery();
-        $query->matching(
-            $query->equals('parentComment', $comment->getUid()),
-        );
+        if ($languageUid !== null) {
+            $query->getQuerySettings()->setRespectSysLanguage(false);
+            $query->matching(
+                $query->logicalAnd(
+                    $query->equals('parentComment', $comment->getUid()),
+                    $query->equals('sys_language_uid', $languageUid),
+                ),
+            );
+        } else {
+            $query->matching(
+                $query->equals('parentComment', $comment->getUid()),
+            );
+        }
         $query->setOrderings(['crdate' => $this->getReplySortingDirection()]);
         $comment->setReplies($query->execute());
     }

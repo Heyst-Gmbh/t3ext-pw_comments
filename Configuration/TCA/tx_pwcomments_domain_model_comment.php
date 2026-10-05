@@ -33,7 +33,7 @@ return [
         'iconfile' => 'EXT:pw_comments/Resources/Public/Icons/tx_pwcomments_domain_model_comment.png',
     ],
     'types' => [
-        '1' => ['showitem' => 'hidden,author,author_name,author_mail,author_ident,terms_accepted,'
+        '1' => ['showitem' => 'hidden,lock,author,author_name,author_mail,author_ident,terms_accepted,'
                               . 'message,parent_comment,votes,rating,'
                               . '--div--;AI Moderation,ai_moderation_status,ai_moderation_reason,ai_moderation_confidence,ai_moderation_control'],
     ],
@@ -90,6 +90,13 @@ return [
         'hidden' => [
             'exclude' => 0,
             'label' => $ll . 'general.hidden',
+            'config' => [
+                'type' => 'check',
+            ],
+        ],
+        'lock' => [
+            'exclude' => 0,
+            'label' => $ll . 'tx_pwcomments_domain_model_comment.lock',
             'config' => [
                 'type' => 'check',
             ],
