@@ -101,6 +101,16 @@ class Comment extends AbstractEntity
     protected int $rating = 0;
 
     /**
+     * Locked by an editor: the message is replaced by a notice in frontend
+     */
+    protected bool $lock = false;
+
+    /**
+     * Transient: true if the current visitor has voted for this comment
+     */
+    protected bool $voted = false;
+
+    /**
      * @var string|null
      */
     protected $aiModerationStatus;
@@ -473,6 +483,26 @@ class Comment extends AbstractEntity
     public function setRating(int $rating): void
     {
         $this->rating = $rating;
+    }
+
+    public function getLock(): bool
+    {
+        return $this->lock;
+    }
+
+    public function setLock(bool $lock): void
+    {
+        $this->lock = $lock;
+    }
+
+    public function getVoted(): bool
+    {
+        return $this->voted;
+    }
+
+    public function setVoted(bool $voted): void
+    {
+        $this->voted = $voted;
     }
 
     /**

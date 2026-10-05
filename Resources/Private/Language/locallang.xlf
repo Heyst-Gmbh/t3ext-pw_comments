@@ -172,6 +172,9 @@
 			<trans-unit id="tx_pwcomments.votes.downvote" xml:space="preserve">
 				<source>Downvote</source>
 			</trans-unit>
+			<trans-unit id="tx_pwcomments.pageVote.toggle" xml:space="preserve">
+				<source>Like</source>
+			</trans-unit>
 			<trans-unit id="tx_pwcomments.votes.selfVotingError" xml:space="preserve">
 				<source>You may not vote your own comments</source>
 			</trans-unit>

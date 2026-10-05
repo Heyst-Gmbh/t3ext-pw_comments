@@ -80,6 +80,8 @@ plugin.tx_pwcomments {
         hideVoteButtons = 0
         # cat=plugin.tx_pwcomments/voting; type=boolean; label= LLL:EXT:pw_comments/Resources/Private/Language/locallang_constants.xlf:settings.ignoreVotingForOwnComments
         ignoreVotingForOwnComments = 1
+        # cat=plugin.tx_pwcomments/voting; type=boolean; label=Enable page votes: Visitors can "like" the page (or entry) itself, see lib.pwCommentsPageVote
+        enablePageVoting = 0
 
         # cat=plugin.tx_pwcomments/mails; type=string; label= LLL:EXT:pw_comments/Resources/Private/Language/locallang_constants.xlf:settings.senderAddress
         senderAddress =
@@ -124,6 +126,8 @@ plugin.tx_pwcomments {
 
         # cat=plugin.tx_pwcomments/misc; type=boolean; label= LLL:EXT:pw_comments/Resources/Private/Language/locallang_constants.xlf:settings.enableRating
         enableRating = 0
+        # cat=plugin.tx_pwcomments/misc; type=boolean; label=Filter comments by language: Comments are saved with the current site language and only shown in this language
+        filterCommentsByLanguage = 0
 
         # cat=plugin.tx_pwcomments/moderation; type=boolean; label= LLL:EXT:pw_comments/Resources/Private/Language/locallang_constants.xlf:settings.moderateNewComments
         moderateNewComments = 1

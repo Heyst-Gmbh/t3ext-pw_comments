@@ -17,6 +17,7 @@ CREATE TABLE tx_pwcomments_domain_model_comment (
 	ai_moderation_status varchar(20) DEFAULT NULL,
 	ai_moderation_reason text,
 	ai_moderation_confidence decimal(3,2) DEFAULT NULL,
+	lock tinyint(4) unsigned DEFAULT '0' NOT NULL,
 );
 
 #
@@ -24,6 +25,7 @@ CREATE TABLE tx_pwcomments_domain_model_comment (
 #
 CREATE TABLE tx_pwcomments_domain_model_vote (
 	orig_pid int(11) unsigned DEFAULT '0' NOT NULL,
+	entry_uid int(11) unsigned DEFAULT '0' NOT NULL,
 	type int(11) unsigned DEFAULT '1' NOT NULL,
 	author int(11) unsigned DEFAULT '0' NOT NULL,
 	author_ident tinytext,

@@ -30,6 +30,7 @@ use T3\PwComments\Utility\Mail;
 use T3\PwComments\Utility\Settings;
 use T3\PwComments\Utility\StringUtility;
 use TYPO3\CMS\Core\Log\Channel;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\View\ViewFactoryData;
@@ -37,6 +38,7 @@ use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Core\View\ViewInterface;
 use TYPO3\CMS\Extbase\Annotation\IgnoreValidation;
 use TYPO3\CMS\Extbase\Annotation\Validate;
+use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Persistence\Generic\QueryResult;
@@ -172,12 +174,13 @@ class CommentController extends ActionController implements LoggerAwareInterface
             $this->commentRepository->setInvertReplySorting(true);
         }
 
+        $languageUid = $this->isLanguageFilterEnabled() ? $this->getCurrentLanguageUid() : null;
         if ($this->entryUid > 0) {
             /* @var $comments QueryResult */
-            $comments = $this->commentRepository->findByPidAndEntryUid($this->commentStorageUid, $this->entryUid);
+            $comments = $this->commentRepository->findByPidAndEntryUid($this->commentStorageUid, $this->entryUid, $languageUid);
         } else {
             /* @var $comments QueryResult */
-            $comments = $this->commentRepository->findByPid($this->commentStorageUid);
+            $comments = $this->commentRepository->findByPid($this->commentStorageUid, $languageUid);
         }
 
         $this->handleCustomMessages();
@@ -202,10 +205,12 @@ class CommentController extends ActionController implements LoggerAwareInterface
         }
         $this->view->assign('upvotedCommentUids', $upvotedCommentUids);
         $this->view->assign('downvotedCommentUids', $downvotedCommentUids);
+        $this->markVotedComments($comments, array_merge($upvotedCommentUids, $downvotedCommentUids));
 
         $this->view->assign('comments', $comments);
         $this->view->assign('commentCount', $this->calculateCommentCount($comments));
         $this->view->assign('commentToReplyTo', $commentToReplyTo);
+        $this->view->assign('loggedInUserId', $this->currentUser['uid'] ?? 0);
 
         return $this->htmlResponse();
     }
@@ -234,6 +239,9 @@ class CommentController extends ActionController implements LoggerAwareInterface
         $newComment->setOrigPid($this->pageUid);
         $newComment->setEntryUid($this->entryUid);
         $newComment->setAuthorIdent($this->currentAuthorIdent);
+        if ($this->isLanguageFilterEnabled()) {
+            $newComment->_setProperty(AbstractDomainObject::PROPERTY_LANGUAGE_UID, $this->getCurrentLanguageUid());
+        }
 
         $author = null;
         if (isset($this->currentUser['uid'])) {
@@ -241,6 +249,10 @@ class CommentController extends ActionController implements LoggerAwareInterface
         }
         if ($author !== null) {
             $newComment->setAuthor($author);
+            // Keep name and mail of the fe_user with the comment, the form does not ask for them
+            $authorName = $author->getName() ?: trim($author->getFirstName() . ' ' . $author->getLastName());
+            $newComment->setAuthorName($authorName ?: $author->getUsername());
+            $newComment->setAuthorMail($author->getEmail());
         } else {
             $newComment->setAuthor(null);
             $this->request->getAttribute('frontend.user')->setKey('ses', 'tx_pwcomments_unregistredUserName', $newComment->getAuthorName());
@@ -408,6 +420,69 @@ class CommentController extends ActionController implements LoggerAwareInterface
     public function downvoteAction(Comment $comment): ResponseInterface
     {
         return $this->performVoting($comment, Vote::TYPE_DOWNVOTE);
+    }
+
+    /**
+     * Displays the page vote ("like") button and the number of page votes
+     * of the current page or entry
+     */
+    public function indexPageVoteAction(): ResponseInterface
+    {
+        $voted = false;
+        if ($this->currentAuthorIdent !== null) {
+            $voted = $this->voteRepository->findOnePageVoteByAuthorIdent(
+                $this->pageUid,
+                $this->entryUid,
+                $this->currentAuthorIdent,
+            ) !== null;
+        }
+
+        $this->view->assign('votes', $this->voteRepository->findPageVotes($this->pageUid, $this->entryUid));
+        $this->view->assign('voted', $voted);
+
+        return $this->htmlResponse();
+    }
+
+    /**
+     * Toggles the page vote ("like") of the current visitor
+     */
+    public function newPageVoteAction(): ResponseInterface
+    {
+        if (!isset($this->settings['enablePageVoting']) || !$this->settings['enablePageVoting']) {
+            return new ForwardResponse('indexPageVote');
+        }
+
+        $this->createAuthorIdent();
+
+        $vote = $this->voteRepository->findOnePageVoteByAuthorIdent(
+            $this->pageUid,
+            $this->entryUid,
+            $this->currentAuthorIdent,
+        );
+
+        if ($vote === null) {
+            /** @var Vote $newVote */
+            $newVote = GeneralUtility::makeInstance(Vote::class);
+            $newVote->setPid($this->commentStorageUid);
+            $newVote->setOrigPid($this->pageUid);
+            $newVote->setEntryUid($this->entryUid);
+            $newVote->setAuthorIdent($this->currentAuthorIdent);
+            if (isset($this->currentUser['uid']) && $this->currentUser['uid']) {
+                /** @var FrontendUser|null $author */
+                $author = $this->frontendUserRepository->findByUid($this->currentUser['uid']);
+                if ($author !== null) {
+                    $newVote->setAuthor($author);
+                }
+            }
+            $newVote->setType(Vote::TYPE_PAGEVOTE);
+            $this->voteRepository->add($newVote);
+        } else {
+            $this->voteRepository->remove($vote);
+        }
+
+        $this->commentRepository->persistAll();
+
+        return new ForwardResponse('indexPageVote');
     }
 
     /**
@@ -658,6 +733,41 @@ class CommentController extends ActionController implements LoggerAwareInterface
     protected function getErrorFlashMessage(): bool
     {
         return false;
+    }
+
+    /**
+     * Sets the transient "voted" flag on comments and replies the current visitor has voted for
+     *
+     * @param iterable<Comment> $comments
+     * @param int[] $votedCommentUids
+     */
+    protected function markVotedComments(iterable $comments, array $votedCommentUids): void
+    {
+        if ($votedCommentUids === []) {
+            return;
+        }
+        foreach ($comments as $comment) {
+            $comment->setVoted(in_array($comment->getUid(), $votedCommentUids, true));
+            foreach ($comment->getReplies() ?? [] as $reply) {
+                $reply->setVoted(in_array($reply->getUid(), $votedCommentUids, true));
+            }
+        }
+    }
+
+    /**
+     * Comments are only shown in the language they have been written in,
+     * if settings.filterCommentsByLanguage is enabled
+     */
+    protected function isLanguageFilterEnabled(): bool
+    {
+        return isset($this->settings['filterCommentsByLanguage']) && $this->settings['filterCommentsByLanguage'];
+    }
+
+    protected function getCurrentLanguageUid(): int
+    {
+        $language = $this->request->getAttribute('language');
+
+        return $language instanceof SiteLanguage ? $language->getLanguageId() : 0;
     }
 
     private function gpFromRequest(string $param): mixed
