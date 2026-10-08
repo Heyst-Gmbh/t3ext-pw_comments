@@ -192,7 +192,7 @@ final class CommentControllerTest extends TestCase
             )
             ->willReturn($comments);
 
-        $this->view->expects(self::exactly(5))
+        $this->view->expects(self::exactly(6))
             ->method('assign')
             ->willReturn($this->view);
 
@@ -301,7 +301,7 @@ final class CommentControllerTest extends TestCase
             ->with($pageUid)
             ->willReturn($comments);
 
-        $this->view->expects(self::exactly(5))
+        $this->view->expects(self::exactly(6))
             ->method('assign')
             ->willReturnCallback(function ($key, $value) use ($comments) {
                 if ($key === 'comments') {
@@ -314,6 +314,8 @@ final class CommentControllerTest extends TestCase
                     self::assertSame([], $value);
                 } elseif ($key === 'commentToReplyTo') {
                     self::assertNull($value);
+                } elseif ($key === 'loggedInUserId') {
+                    self::assertSame(0, $value);
                 }
                 return $this->view;
             });
@@ -350,7 +352,7 @@ final class CommentControllerTest extends TestCase
             ->with($pageUid, $authorIdent)
             ->willReturn($votes);
 
-        $this->view->expects(self::exactly(5))
+        $this->view->expects(self::exactly(6))
             ->method('assign')
             ->willReturnCallback(function ($key, $value) {
                 if ($key === 'upvotedCommentUids') {
@@ -926,7 +928,7 @@ final class CommentControllerTest extends TestCase
             ->method('findByPid')
             ->willReturn($comments);
 
-        $this->view->expects(self::exactly(5))
+        $this->view->expects(self::exactly(6))
             ->method('assign')
             ->willReturnCallback(function ($key, $value) {
                 if ($key === 'commentCount') {
@@ -956,7 +958,7 @@ final class CommentControllerTest extends TestCase
             ->method('findByPid')
             ->willReturn($comments);
 
-        $this->view->expects(self::exactly(5))
+        $this->view->expects(self::exactly(6))
             ->method('assign')
             ->willReturnCallback(function ($key, $value) {
                 if ($key === 'commentCount') {
@@ -1075,6 +1077,53 @@ final class CommentControllerTest extends TestCase
 
         self::assertNull($vote->getAuthor());
         self::assertSame(Vote::TYPE_DOWNVOTE, $vote->getType());
+    }
+
+    #[Test]
+    public function deleteActionRemovesCommentOfLoggedInAuthor(): void
+    {
+        $this->injectProperty('currentUser', ['uid' => 42]);
+        $comment = $this->createCommentWithAuthorUid(42);
+
+        $this->commentRepository->expects(self::once())->method('remove')->with($comment);
+        $this->commentRepository->expects(self::once())->method('persistAll');
+
+        $response = $this->controller->deleteAction($comment);
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function deleteActionRejectsCommentOfAnotherUser(): void
+    {
+        $this->injectProperty('currentUser', ['uid' => 42]);
+        $comment = $this->createCommentWithAuthorUid(7);
+
+        $this->commentRepository->expects(self::never())->method('remove');
+
+        $response = $this->controller->deleteAction($comment);
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function deleteActionRejectsAnonymousVisitor(): void
+    {
+        $this->injectProperty('currentUser', []);
+        $comment = $this->createCommentWithAuthorUid(42);
+
+        $this->commentRepository->expects(self::never())->method('remove');
+
+        $response = $this->controller->deleteAction($comment);
+        self::assertSame(403, $response->getStatusCode());
+    }
+
+    private function createCommentWithAuthorUid(int $authorUid): Comment
+    {
+        $author = $this->createMock(FrontendUser::class);
+        $author->method('getUid')->willReturn($authorUid);
+        $comment = new Comment();
+        $comment->setAuthor($author);
+
+        return $comment;
     }
 
     #[Test]
