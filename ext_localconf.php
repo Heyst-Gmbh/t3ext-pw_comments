@@ -27,10 +27,10 @@ if (!defined('TYPO3')) {
         $extensionKey,
         'show',
         [
-            CommentController::class => 'index,upvote,downvote',
+            CommentController::class => 'index,new,upvote,downvote,delete',
         ],
         [
-            CommentController::class => 'index,upvote,downvote',
+            CommentController::class => 'index,new,upvote,downvote,delete',
         ],
     );
     ExtensionUtility::configurePlugin(
@@ -78,6 +78,7 @@ if (!defined('TYPO3')) {
             'tx_pwcomments_show[action]',
             'tx_pwcomments_show[comment]',
             'tx_pwcomments_show[commentToReplyTo]',
+            'tx_pwcomments_show[commentToDelete]',
             'tx_pwcomments_show[hash]',
             'tx_pwcomments_show[__referrer][@extension]',
             'tx_pwcomments_show[__referrer][@vendor]',

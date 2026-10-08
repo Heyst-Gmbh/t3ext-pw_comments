@@ -132,8 +132,10 @@ lib {
         controllerActions {
             Comment {
                 1 = index
-                2 = upvote
-                3 = downvote
+                2 = new
+                3 = upvote
+                4 = downvote
+                5 = delete
             }
         }
 
