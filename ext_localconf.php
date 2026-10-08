@@ -53,7 +53,6 @@ if (!defined('TYPO3')) {
         [
             CommentController::class => 'indexPageVote,newPageVote',
         ],
-        ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT,
     );
 
     ExtensionUtility::configurePlugin(
