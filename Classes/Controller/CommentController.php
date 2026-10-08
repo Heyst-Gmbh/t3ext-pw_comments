@@ -423,6 +423,24 @@ class CommentController extends ActionController implements LoggerAwareInterface
     }
 
     /**
+     * Deletes a comment, but only if it has been written by the logged in frontend user
+     */
+    #[IgnoreValidation(['value' => 'commentToDelete'])]
+    public function deleteAction(Comment $commentToDelete): ResponseInterface
+    {
+        $userId = (int) ($this->currentUser['uid'] ?? 0);
+        $author = $commentToDelete->getAuthor();
+        if ($userId === 0 || $author === null || $author->getUid() !== $userId) {
+            return $this->htmlResponse('')->withStatus(403);
+        }
+
+        $this->commentRepository->remove($commentToDelete);
+        $this->commentRepository->persistAll();
+
+        return $this->htmlResponse('');
+    }
+
+    /**
      * Displays the page vote ("like") button and the number of page votes
      * of the current page or entry
      */
