@@ -94,6 +94,11 @@ class MigratePluginsUpgradeWizard implements UpgradeWizardInterface, ChattyInter
      */
     public function updateNecessary(): bool
     {
+        // tt_content.list_type is removed by the database analyzer in TYPO3 14, nothing left to migrate then
+        if (!$this->listTypeColumnExists()) {
+            return false;
+        }
+
         $queryBuilder = $this->getQueryBuilder();
         $count = $queryBuilder
             ->count('uid')
@@ -122,6 +127,16 @@ class MigratePluginsUpgradeWizard implements UpgradeWizardInterface, ChattyInter
     public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
+    }
+
+    private function listTypeColumnExists(): bool
+    {
+        $columns = $this->connectionPool
+            ->getConnectionForTable(self::TABLE)
+            ->createSchemaManager()
+            ->listTableColumns(self::TABLE);
+
+        return isset($columns['list_type']);
     }
 
     /**
